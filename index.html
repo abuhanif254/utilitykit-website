@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utility Kit - Your All-in-One Online Toolkit</title>
+    <meta name="description" content="Utility Kit is a free, fast, and secure all-in-one online toolkit. Convert images to PDF, merge PDFs, calculate BMI, generate passwords, and use over 40 other tools directly in your browser.">
+    <meta name="keywords" content="online tools, free tools, utility kit, pdf tools, developer tools, calculators, converters, generators, seo optimize, utilitykit.online">
+    <meta name="author" content="Mohammad Baitullah">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://utilitykit.online/">
+    <meta property="og:title" content="Utility Kit - Your All-in-One Online Toolkit">
+    <meta property="og:description" content="A comprehensive collection of free, browser-based tools for PDF, calculations, conversions, and development.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Utility Kit",
+      "url": "https://utilitykit.online/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://utilitykit.online/#home?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #00C6FF;
+            --background-color: #0a101f;
+            --surface-color: #121c33;
+            --text-color: #cdd5e1;
+            --heading-color: #ffffff;
+            --border-color: #2a3a5a;
+        }
+        
+        body.light-mode {
+            --background-color: #f0f2f5;
+            --surface-color: #ffffff;
+            --text-color: #4a5568;
+            --heading-color: #1a202c;
+            --border-color: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        #background-canvas {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: 100%; z-index: -1; transition: opacity 0.5s ease;
+        }
+        body.light-mode #background-canvas { opacity: 0; }
+
+        .container { width: 90%; max-width: 1200px; margin: auto; }
+
+        .main-header {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 1rem 0;
+            background-color: rgba(10, 16, 31, 0.8); backdrop-filter: blur(10px);
+            z-index: 1000; border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        body.light-mode .main-header { background-color: rgba(255, 255, 255, 0.8); }
+        .main-header.scrolled { box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        body.light-mode .main-header.scrolled { box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: var(--heading-color); text-decoration: none; letter-spacing: 1px; }
+        .logo span { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .nav-wrapper { display: flex; align-items: center; gap: 2rem; }
+        .main-nav ul { list-style: none; display: flex; gap: 2rem; }
+        .main-nav a { color: var(--text-color); text-decoration: none; font-weight: 500; position: relative; transition: color 0.3s ease; padding-bottom: 5px; }
+        .main-nav a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); transition: width 0.3s ease; }
+        .main-nav a:hover, .main-nav a.active { color: var(--heading-color); }
+        .main-nav a:hover::after, .main-nav a.active::after { width: 100%; }
+
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 50px; }
+        .theme-switch input { display:none; }
+        .slider { background-color: var(--surface-color); border: 1px solid var(--border-color); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px;}
+        .slider:before { background-color: var(--primary-color); bottom: 3px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--surface-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .mobile-menu-toggle { display: none; background: none; border: none; cursor: pointer; }
+        .mobile-menu-toggle svg { width: 30px; height: 30px; fill: var(--heading-color); }
+
+        @media (max-width: 768px) {
+            .main-nav {
+                position: absolute; top: 100%; left: 0; width: 100%;
+                background-color: var(--surface-color);
+                max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out;
+                border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;
+            }
+            .main-nav.active { max-height: 300px; padding-bottom: 1rem;}
+            .main-nav ul { flex-direction: column; padding: 1rem; align-items: center; }
+            .mobile-menu-toggle { display: block; }
+        }
+
+        .page-content { padding-top: 100px; min-height: 100vh; opacity: 0; animation: fadeIn 0.8s forwards; position: relative; z-index: 2; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        section { padding: 4rem 0; }
+        .section-title, .static-page-content h2 { text-align: center; font-size: 2.5rem; color: var(--heading-color); margin-bottom: 3rem; font-weight: 700; }
+        .static-page-content h3 { font-size: 1.5rem; color: var(--heading-color); margin: 2rem 0 1rem; }
+        
+        .tools-header { text-align: center; margin-bottom: 3rem; }
+        .search-bar { width: 100%; max-width: 600px; margin: 0 auto 2rem; position: relative; }
+        .search-bar input { width: 100%; padding: 15px 20px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 50px; color: var(--text-color); font-size: 1rem; }
+        .category-filters { text-align: center; margin-bottom: 2rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .category-btn { background: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; }
+        .category-btn:hover { background-color: var(--primary-color); color: white; }
+        .category-btn.active { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color: white; border-color: var(--primary-color); }
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+        .tool-card { background: var(--surface-color); border-radius: 15px; border: 1px solid var(--border-color); padding: 1.5rem; text-align: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .tool-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); }
+        .tool-card svg { width: 50px; height: 50px; margin-bottom: 1rem; fill: var(--primary-color); }
+        .tool-card h3 { font-size: 1.2rem; color: var(--heading-color); }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--surface-color); padding: 2rem; border-radius: 15px; width: 90%; max-width: 600px; transform: scale(0.9); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.5rem; color: var(--heading-color); }
+        .close-modal { background: none; border: none; color: var(--text-color); font-size: 2rem; cursor: pointer; }
+        .tool-input, .tool-output, .tool-btn, .file-input-label, .tool-select { width: 100%; padding: 12px; margin-bottom: 1rem; border-radius: 8px; background: var(--background-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 1rem; }
+        .tool-btn { background: var(--primary-color); color: white; cursor: pointer; font-weight: 600; border: none; }
+        .tool-btn:disabled { background: #555; cursor: not-allowed; }
+        .tool-output { min-height: 100px; background: var(--background-color); white-space: pre-wrap; word-wrap: break-word; }
+        .file-input-label { display: block; text-align: center; cursor: pointer; background: var(--surface-color); border-style: dashed;}
+        #file-list, .status-message { margin-top: 1rem; font-size: 0.9rem; text-align: center; word-break: break-all;}
+        .tool-options { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .flex-group { display: flex; gap: 1rem; }
+        .flex-group > * { flex: 1; }
+        .password-strength { text-align: center; margin-bottom: 1rem; padding: 5px; border-radius: 5px; color: white; }
+        
+        .static-page-content { max-width: 800px; margin: auto; background: var(--surface-color); padding: 2rem; border-radius: 15px; }
+        .static-page-content p { margin-bottom: 1rem; }
+
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .blog-card { background: var(--surface-color); border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,.2); }
+        .blog-card img { width: 100%; height: 200px; object-fit: cover; }
+        .blog-card-content { padding: 1.5rem; flex-grow: 1; }
+        .blog-card-content h3 { font-size: 1.3rem; margin-bottom: .5rem; }
+        .blog-card-content p { font-size: .9rem; }
+        .read-more-link { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+
+        .contact-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: center;}
+        .contact-info-item svg { width: 40px; height: 40px; fill: var(--primary-color); margin-bottom: 1rem;}
+        .contact-info-item h3 { color: var(--heading-color); margin-bottom: .5rem;}
+        .contact-info-item a { color: var(--text-color); text-decoration: none; }
+
+        .not-found-page { text-align: center; padding: 2rem; }
+        .not-found-page h1 { font-size: 8rem; margin:0; color: var(--primary-color); }
+        .not-found-page h2 { font-size: 2rem; margin-bottom: 1rem; }
+        .not-found-page p { margin-bottom: 2rem; }
+
+        .main-footer { background-color: var(--surface-color); color: var(--text-color); padding-top: 4rem; position: relative; z-index: 5; margin-top: 4rem;}
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; padding-bottom: 3rem; }
+        .footer-column h4 { font-size: 1.2rem; color: var(--heading-color); margin-bottom: 1.5rem; }
+        .footer-column p, .footer-column li { margin-bottom: 0.75rem; }
+        .footer-column ul { list-style: none; padding: 0;}
+        .footer-column a { color: var(--text-color); text-decoration: none; transition: color 0.3s ease; }
+        .footer-column a:hover { color: var(--primary-color); }
+        .footer-social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+        .footer-social-links a svg { width: 20px; height: 20px; fill: var(--text-color); }
+        .footer-social-links a:hover svg { fill: var(--primary-color); }
+        .footer-bottom { padding: 1.5rem 0; text-align: center; border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    <canvas id="background-canvas"></canvas>
+
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="#home" class="logo nav-link">Utility<span>Kit</span></a>
+            <div class="nav-wrapper">
+                <nav class="main-nav" id="main-nav-menu">
+                    <ul>
+                        <li><a href="#home" class="nav-link active">Tools</a></li>
+                        <li><a href="#blog" class="nav-link">Blog</a></li>
+                        <li><a href="#about" class="nav-link">About</a></li>
+                        <li><a href="#contact" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="theme-checkbox">
+                        <input type="checkbox" id="theme-checkbox" />
+                        <div class="slider"></div>
+                    </label>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content"></main>
+
+    <footer class="main-footer">
+        <div class="container">
+             <div class="footer-content">
+                <div class="footer-column">
+                    <h4>About Utility Kit</h4>
+                    <p>A free, fast, and privacy-focused online toolkit. All tools run directly in your browser, meaning your files and data are never uploaded to a server.
+                        This project was developed by <strong>Mohammad Baitullah</strong>
+                    </p>
+                </div>
+                <div class="footer-column">
+                    <h4>Tool Categories</h4>
+                    <ul id="footer-categories"></ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal &amp; Info</h4>
+                    <ul>
+                        <li><a href="#about" class="nav-link">About Us</a></li>
+                        <li><a href="#contact" class="nav-link">Contact</a></li>
+                        <li><a href="#privacy-policy" class="nav-link">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Follow Us</h4>
+                    <p>Stay connected with us on social media.</p>
+                    <div class="footer-social-links">
+                        <a href="https://facebook.com" target="_blank" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
+                        <a href="https://youtube.com" target="_blank" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.58 7.19c-.23-.86-.9-1.52-1.76-1.75C18.26 5 12 5 12 5s-6.26 0-7.82.44c-.86.23-1.52.89-1.75 1.75C2 8.75 2 12 2 12s0 3.25.43 4.81c.23.86.9 1.52 1.75 1.75C5.74 19 12 19 12 19s6.26 0 7.82-.44c.86-.23 1.52-.89 1.75-1.75C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg></a>
+                        <a href="https://instagram.com" target="_blank" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p id="copyright"></p>
+        </div>
+    </footer>
+    
+    <div class="modal-overlay" id="tool-modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Tool Title</h2>
+                <button id="close-modal-btn" class="close-modal">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+
+    <template id="template-home">
+        <div class="page-content" id="home-page">
+            <section class="tools-section">
+                <div class="container">
+                    <div class="tools-header">
+                        <h1 style="color: var(--heading-color); font-size: 3rem; margin-bottom: 1rem;">The Ultimate Online Toolkit</h1>
+                        <p>Over 40 free, fast, and secure tools that work directly in your browser.</p>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Search for a tool...">
+                    </div>
+                    <div class="category-filters" id="category-filters-container"></div>
+                    <div class="tools-grid" id="tools-grid-container"></div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-about">
+        <div class="page-content" id="about-page">
+            <section>
+                <div class="container">
+                    <div class="static-page-content">
+                        <h2>About Utility Kit</h2>
+                        <p>Utility Kit was born from a simple idea: to create a single, reliable, and easy-to-use website with all the essential online tools people need daily. In a world of slow, ad-filled websites that require you to upload your sensitive data, we wanted to build something different.</p>
+                        <h3>Our Philosophy: Privacy and Speed</h3>
+                        <p>Our core principle is that your data is your own. Almost every tool on this website runs entirely within your web browser. This means your files, images, and text are never sent to our server. The calculations, conversions, and generations happen on your own device, ensuring complete privacy and security.</p>
+                        <p>This client-side approach also makes our tools incredibly fast. There's no waiting for uploads or server processing. The results are instantaneous.</p>
+                        <h3>The Creator</h3>
+                        <p>This project was developed by <strong>Mohammad Baitullah</strong>, a passionate web developer who believes in making technology accessible, secure, and free for everyone. Utility Kit is a testament to the power of modern web technologies to create powerful applications that respect user privacy.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-blog">
+        <div class="page-content" id="blog-page">
+            <section>
+                <div class="container">
+                    <h2 class="section-title">Utility Kit Blog</h2>
+                    <p style="text-align: center; max-width: 600px; margin: -2rem auto 3rem;">Tips, tricks, and updates about our tools and the world of web utilities.</p>
+                    <div class="blog-grid">
+                        <div class="blog-card">
+                            <img src="https://placehold.co/600x400/007BFF/FFFFFF/png?text=PDF+Guide" alt="A guide on using PDF tools">
+                            <div class="blog-card-content">
+                                <h3>5 PDF Tricks to Boost Your Productivity</h3>
+                                <p>Learn how to efficiently merge, split, and manage your PDF files like a pro using our browser-based tools, without compromising your data's security.</p>
+                                <a href="#" class="read-more-link">Read More &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="blog-card">
+                            <img src="https://placehold.co/600x400/2a3a5a/FFFFFF/png?text=Privacy" alt="A shield icon representing data privacy">
+                            <div class="blog-card-content">
+                                <h3>Why Client-Side Tools Are the Future of Online Privacy</h3>
+                                <p>We explain why tools that run in your browser are safer and faster than traditional server-based applications. Your privacy matters.</p>
+                                <a href="#" class="read-more-link">Read More &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="blog-card">
+                            <img src="https://placehold.co/600x400/00c6ff/FFFFFF/png?text=Dev+Tools" alt="Code on a screen representing developer tools">
+                            <div class="blog-card-content">
+                                <h3>A Developer's Guide to Our Web & Dev Tools</h3>
+                                <p>Discover how tools like our Hash Generator, Base64 Encoder, and JSON formatter can streamline your development workflow, right from your browser.</p>
+                                <a href="#" class="read-more-link">Read More &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-contact">
+        <div class="page-content" id="contact-page">
+            <section>
+                <div class="container">
+                    <h2 class="section-title">Get In Touch</h2>
+                    <div class="static-page-content">
+                        <p style="text-align: center; max-width: 700px; margin: -2rem auto 3rem;">Have a question, suggestion, or a new tool idea? We'd love to hear from you. Reach out to us via email or connect with us on social media.</p>
+                        <div class="contact-info-grid">
+                            <div class="contact-info-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                                <h3>Email Us</h3>
+                                <p><a href="mailto:mohammadbitullah@gmail.com">mohammadbitullah@gmail.com</a></p>
+                            </div>
+                             <div class="contact-info-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                                <h3>Social Media</h3>
+                                <p>Connect with us online</p>
+                                <div class="footer-social-links" style="justify-content: center;">
+                                    <a href="https://facebook.com" target="_blank" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
+                                    <a href="https://youtube.com" target="_blank" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.58 7.19c-.23-.86-.9-1.52-1.76-1.75C18.26 5 12 5 12 5s-6.26 0-7.82.44c-.86.23-1.52.89-1.75 1.75C2 8.75 2 12 2 12s0 3.25.43 4.81c.23.86.9 1.52 1.75 1.75C5.74 19 12 19 12 19s6.26 0 7.82-.44c.86-.23 1.52-.89 1.75-1.75C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg></a>
+                                    <a href="https://instagram.com" target="_blank" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+    
+    <template id="template-privacy-policy">
+        <div class="page-content" id="privacy-policy-page">
+            <section>
+                <div class="container">
+                    <div class="static-page-content">
+                        <h2>Privacy Policy for Utility Kit</h2>
+                        <p>At Utility Kit, accessible from utilitykit.online, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Utility Kit and how we use it.</p>
+                        <h3>Our Core Privacy Principle</h3>
+                        <p><strong>Your data is your own.</strong> The vast majority of tools on this website operate entirely on the client-side, within your browser. This means that any files, text, or other data you input into these tools are processed on your own computer and are never sent to, or stored on, our servers. We have no access to the content you work with.</p>
+                        <h3>Log Files</h3>
+                        <p>Utility Kit follows a standard procedure of using log files. These files log visitors when they visit websites. The information collected by log files include internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, and referring/exit pages. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, and gathering demographic information.</p>
+                        <h3>Third Party Privacy Policies</h3>
+                        <p>Utility Kit's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of any third-party ad servers for more detailed information. Note that Utility Kit has no access to or control over these cookies that are used by third-party advertisers.</p>
+                        <h3>Consent</h3>
+                        <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-404">
+        <div class="page-content" id="not-found-page-content">
+            <div class="not-found-page">
+                <h1>404</h1>
+                <h2>Oops! Page Not Found.</h2>
+                <p>The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+                <a href="#home" class="tool-btn nav-link" style="text-decoration: none; display: inline-block; width: auto; padding: 12px 24px;">Back to Tools</a>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async function() {
+            // --- GLOBAL LIBS ---
+            const { PDFDocument, rgb, degrees, StandardFonts } = window.PDFLib;
+            const { jsPDF } = window.jspdf;
+            const { CryptoJS } = window;
+            const pdfjsLib = await import('https://mozilla.github.io/pdf.js/build/pdf.mjs');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://mozilla.github.io/pdf.js/build/pdf.worker.mjs`;
+
+            // --- DATA ---
+            const categories = [ { id: 'all', name: 'All' }, { id: 'pdf', name: 'PDF Tools'}, { id: 'calculator', name: 'Calculators' }, { id: 'converter', name: 'Converters' }, { id: 'generator', name: 'Generators' }, { id: 'web', name: 'Web & Dev' }, { id: 'text', name: 'Text Tools' }];
+            const tools = [
+                { id: 'image-to-pdf', name: 'Image to PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5l-2.5 3.01L6 11l-2 2.67V6h11v5.5zM8 20H4V6h2.67l2-2.67 2.5 3.01L14.5 7.5l-4.5 6z"/></svg>'},
+                { id: 'merge-pdf', name: 'Merge PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 11h-2v2H9v-2H7v-2h2V7h2v2h2v2zm7-9H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H6V4h12v14z"/></svg>'},
+                { id: 'split-pdf', name: 'Split PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 11h8v2H8zm12-7H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM9.5 18H8V6h1.5v12zm3.5 0h-2V6h2v12zm3.5 0h-1.5V6H16v12z"/></svg>'},
+                { id: 'rotate-pdf', name: 'Rotate PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6.58c1.33 0 2.55.53 3.44 1.42l-1.44 1.44c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l3.54-3.54c.39-.39.39-1.02 0-1.41L15.41 2.93c-.39-.39-1.02-.39-1.41 0s-.39 1.02 0 1.41L15.58 6C14.34 4.76 12.75 4 11 4c-3.86 0-7 3.14-7 7s3.14 7 7 7v-2c-2.76 0-5-2.24-5-5s2.24-5 5-5z"/></svg>'},
+                { id: 'pdf-to-jpg', name: 'PDF to JPG', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4v12h-2V8.83l-4.41 4.41-2-2-4.41 4.41L6 14.83V18H4V4h16zM4 20h16v-2H4v2z"/></svg>'},
+                { id: 'protect-pdf', name: 'Protect PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v2h-2V7zm0 4h2v6h-2v-6z"/></svg>'},
+                { id: 'add-page-numbers', name: 'Add Page Numbers', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V6.75c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10.5c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2zM6 12h2v1h-2v-1zm0-4h2v1H6V8zm0 8h2v1H6v-1zm4-4h8v1h-8v-1zm0-4h8v1h-8V8zm0 8h8v1h-8v-1z"/></svg>'},
+                { id: 'add-watermark', name: 'Add Watermark', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H5V5h14v14zM8 11c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4z"/></svg>'},
+                { id: 'extract-pages', name: 'Extract Pages', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14.17 5L19 9.83V19H5V5h9.17M14 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9l-6-6zM7 15h10v2H7v-2zm0-4h10v2H7v-2z"/></svg>'},
+                { id: 'unlock-pdf', name: 'Unlock PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.21-1.79-4-4-4S8 3.79 8 6H7c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>'},
+                { id: 'compress-pdf', name: 'Compress PDF', category: 'pdf', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 12h2v5h2v-5h2V9H4zm14-5h-2V5h-2v2h-2v3h6zM6 7V5h2v2H6zm14 12h-2v-2h-2v2h-2v-3h6z"/></svg>'},
+                { id: 'bmi-calculator', name: 'BMI Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V8h2v4zm4 4h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>'},
+                { id: 'age-calculator', name: 'Age Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>'},
+                { id: 'percentage-calculator', name: 'Percentage Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 5H5v14h14V5zm-4.5 9H13v-2.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5V14zm-6-5c.83 0 1.5.67 1.5 1.5S9.33 12 8.5 12 7 11.33 7 10.5 7.67 9 8.5 9z"/></svg>'},
+                { id: 'discount-calculator', name: 'Discount Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21zm-5.2-12.79L18.17 6.6c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41L8.99 18.59c-.39.39-1.02.39-1.41 0l-5.6-5.6c-.39-.39-.39-1.02 0-1.41s1.03-.39 1.42 0z"/></svg>'},
+                { id: 'date-calculator', name: 'Date Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>'},
+                { id: 'loan-calculator', name: 'Loan EMI Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c2.07-.4 3.5-1.56 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>'},
+                { id: 'tip-calculator', name: 'Tip Calculator', category: 'calculator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7h16v10c0 .55-.45 1-1 1z"/></svg>'},
+                { id: 'currency-converter', name: 'Currency Converter', category: 'converter', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 15h10v-2H7v2zm0-4h10V9H7v2zm13-7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg>'},
+                { id: 'color-converter', name: 'HEX/RGB/HSL Converter', category: 'converter', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-1.39-1.59-2.2-3.6-2.2-5.49s.81-3.9 2.2-5.49c.24-.27.39-.62.39-1.01 0-.83-.67-1.5-1.5-1.5z"/></svg>'},
+                { id: 'length-converter', name: 'Length Converter', category: 'converter', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8zM9 15h2V9H9v6zm4-4h2V9h-2v2zm-2-2h2V9h-2v2zm4 2h2V9h-2v4z"/></svg>'},
+                { id: 'weight-converter', name: 'Weight Converter', category: 'converter', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 15v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3zm-9-1.5c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM5 18c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h14v2H5v8h8v2H5z"/></svg>'},
+                { id: 'unix-timestamp-converter', name: 'Unix Timestamp Converter', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>'},
+                { id: 'roman-numeral-converter', name: 'Roman Numeral Converter', category: 'converter', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-5.22l2-1.2V17zM13 17h-2V7h2v10zm4 0h-2v-4.22l2-1.2V17z"/></svg>'},
+                { id: 'password-generator', name: 'Password Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>'},
+                { id: 'qr-code-generator', name: 'QR Code Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm8-12v8h8V3h-8zm6 6h-4V5h4v4zm-6 8h8v-8h-8v8zm2-6h4v4h-4v-4z"/></svg>'},
+                { id: 'quote-generator', name: 'Random Quote Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z"/></svg>'},
+                { id: 'uuid-generator', name: 'UUID Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>'},
+                { id: 'random-number-generator', name: 'Random Number Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 9.5c-1.03 0-1.9.62-2.29 1.5H3v2h14.21c.39.88 1.26 1.5 2.29 1.5s1.9-.62 2.29-1.5H21v-2h-1.21c-.39-.88-1.26-1.5-2.29-1.5zm-8.5 0C9.97 9.5 9.1 10.12 8.71 11H3v2h5.71c.39.88 1.26 1.5 2.29 1.5s1.9-.62 2.29-1.5H21v-2h-3.21c-.39-.88-1.26-1.5-2.29-1.5z"/></svg>'},
+                { id: 'lorem-ipsum-generator', name: 'Lorem Ipsum Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 9H7v-2h6v2zm3-4H7V5h10v2z"/></svg>'},
+                { id: 'dummy-image-generator', name: 'Dummy Image Generator', category: 'generator', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>'},
+                { id: 'whats-my-ip', name: 'What\'s My IP?', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'},
+                { id: 'url-encoder-decoder', name: 'URL Encoder/Decoder', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>'},
+                { id: 'base64-encoder-decoder', name: 'Base64 Encoder/Decoder', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.63 7H6.37C5.19 7 4.54 8.04 5.2 9.1L11 18.25c.63 1.01 1.93 1.01 2.56 0l5.8-9.15c.66-1.06 0-2.1-1.13-2.1z"/></svg>'},
+                { id: 'hash-generator', name: 'Hash Generator (MD5, SHA)', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>'},
+                { id: 'json-viewer', name: 'JSON Viewer & Formatter', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h4zm-2-8H4v-2h2v2zm12-4h-4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-2 12h-2v-2h2v2z"/></svg>'},
+                { id: 'css-minifier', name: 'CSS Minifier', category: 'web', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>'},
+                { id: 'word-counter', name: 'Word & Character Counter', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM8 16H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V6h2v2zm10 8h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V6h8v2z"/></svg>'},
+                { id: 'case-converter', name: 'Case Converter', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg>'},
+                { id: 'reverse-text', name: 'Reverse Text', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>'},
+                { id: 'text-to-speech', name: 'Text to Speech', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>'},
+                { id: 'find-replace', name: 'Find and Replace Text', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>'},
+                { id: 'line-break-remover', name: 'Line Break Remover', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h16v2H4zm0 6h16v2H4z"/></svg>'},
+                { id: 'text-to-slug', name: 'Text to Slug', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h16v2H4zm0 4h10v2H4z"/></svg>'},
+                { id: 'morse-code-converter', name: 'Morse Code Converter', category: 'text', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM9 10H7v4h2v-4zm4 0h-2v4h2v-4zm4 0h-2v4h2v-4z"/></svg>'},
+            ];
+            
+            const mainContent = document.getElementById('main-content');
+            const modalOverlay = document.getElementById('tool-modal-overlay');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const themeCheckbox = document.getElementById('theme-checkbox');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mainNavMenu = document.getElementById('main-nav-menu');
+            const footerCategoriesList = document.getElementById('footer-categories');
+            const header = document.querySelector('.main-header');
+
+            function setPageTitle(pageId) {
+                let title = 'Utility Kit - Your All-in-One Online Toolkit';
+                if (pageId !== 'home' && pageId !== '404') {
+                    const pageName = pageId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    title = `${pageName} | Utility Kit`;
+                } else if (pageId === '404') {
+                    title = '404 Page Not Found | Utility Kit';
+                }
+                document.title = title;
+            }
+
+            themeCheckbox.addEventListener('change', () => document.body.classList.toggle('light-mode'));
+            mobileMenuBtn.addEventListener('click', () => mainNavMenu.classList.toggle('active'));
+
+            if(footerCategoriesList){
+                categories.forEach(cat => {
+                    if (cat.id !== 'all') {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<a href="#home" class="nav-link" data-category="${cat.id}">${cat.name}</a>`;
+                        footerCategoriesList.appendChild(li);
+                    }
+                });
+            }
+
+            document.getElementById('copyright').textContent = `© ${new Date().getFullYear()} Utilitykit.online | All Rights Reserved`;
+            
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 50);
+            });
+
+            function updateNavLinks() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => { 
+                    link.removeEventListener('click', handleNavigation); 
+                    link.addEventListener('click', handleNavigation); 
+                });
+            }
+
+            function loadPage(pageId, categoryFilter = null) {
+                mainContent.innerHTML = '';
+                let template = document.getElementById(`template-${pageId}`);
+                if (!template) {
+                    pageId = '404';
+                    template = document.getElementById('template-404');
+                }
+                const content = template.content.cloneNode(true);
+                mainContent.appendChild(content);
+
+                setPageTitle(pageId);
+
+                document.querySelectorAll('.main-nav a').forEach(l => l.classList.remove('active'));
+                const activeLink = document.querySelector(`.main-nav a[href="#${pageId}"]`);
+                if(activeLink) activeLink.classList.add('active');
+
+                if (pageId === 'home') {
+                    renderToolsPage(categoryFilter || 'all');
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', (e) => {
+                            const activeCategory = document.querySelector('.category-btn.active')?.dataset.category || 'all';
+                            renderToolsPage(activeCategory, e.target.value);
+                        });
+                    }
+                }
+                updateNavLinks(); 
+            }
+
+            function handleNavigation(e) {
+                e.preventDefault();
+                window.scrollTo(0, 0);
+                const targetId = e.currentTarget.getAttribute('href').substring(1);
+                const categoryId = e.currentTarget.dataset.category;
+                
+                if (mainNavMenu.classList.contains('active')) {
+                    mainNavMenu.classList.remove('active');
+                }
+                
+                if (categoryId) {
+                    loadPage('home', categoryId);
+                } else {
+                    loadPage(targetId);
+                }
+                window.location.hash = targetId;
+            }
+            
+            function renderToolsPage(filter = 'all', searchTerm = '') {
+                const toolsGrid = document.getElementById('tools-grid-container');
+                const categoryFilters = document.getElementById('category-filters-container');
+                if (!toolsGrid || !categoryFilters) return;
+
+                categoryFilters.innerHTML = '';
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = cat.name;
+                    btn.dataset.category = cat.id;
+                    if (cat.id === filter) btn.classList.add('active');
+                    btn.addEventListener('click', () => renderToolsPage(cat.id, document.getElementById('search-input')?.value || ''));
+                    categoryFilters.appendChild(btn);
+                });
+                
+                toolsGrid.innerHTML = '';
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                const filteredTools = tools
+                    .filter(tool => filter === 'all' || tool.category === filter)
+                    .filter(tool => tool.name.toLowerCase().includes(lowerCaseSearchTerm));
+                
+                if(filteredTools.length === 0){
+                    toolsGrid.innerHTML = `<p>No tools found matching your criteria.</p>`;
+                    return;
+                }
+                
+                filteredTools.forEach(tool => {
+                    const card = document.createElement('div');
+                    card.className = 'tool-card';
+                    card.innerHTML = `${tool.icon}<h3>${tool.name}</h3>`;
+                    card.addEventListener('click', () => openTool(tool.id));
+                    toolsGrid.appendChild(card);
+                });
+            }
+
+            function openTool(toolId) {
+                const tool = tools.find(t => t.id === toolId); if (!tool) return;
+                modalTitle.textContent = tool.name;
+                modalBody.innerHTML = ''; 
+                buildToolUI(toolId, modalBody);
+                modalOverlay.classList.add('active');
+            }
+
+            function closeModal() { modalOverlay.classList.remove('active'); modalBody.innerHTML = ''; }
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeModal(); });
+            
+            function downloadFile(bytes, filename, mimeType) {
+                const blob = new Blob([bytes], { type: mimeType });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+            
+            function showMessage(container, text, type = 'status') {
+                 const msgEl = container.querySelector('.status-message');
+                 if(msgEl) {
+                    msgEl.textContent = text;
+                    msgEl.style.color = type === 'error' ? '#ff6b6b' : 'var(--text-color)';
+                 }
+            }
+
+            async function buildToolUI(toolId, container) {
+                container.innerHTML = `<div class="status-message">Loading Tool...</div>`;
+                try {
+                    switch (toolId) {
+                        case 'image-to-pdf':
+                            container.innerHTML = `<label for="image-upload" class="file-input-label">Select Images (JPG, PNG)...</label><input type="file" id="image-upload" multiple accept="image/jpeg,image/png" style="display:none;"><div class="status-message" id="file-list"></div><button id="action-btn" class="tool-btn" disabled>Convert to PDF</button>`;
+                            const imgUpload = container.querySelector('#image-upload');
+                            const convertImgBtn = container.querySelector('#action-btn');
+                            imgUpload.onchange = () => {
+                                showMessage(container, `${imgUpload.files.length} file(s) selected.`);
+                                convertImgBtn.disabled = imgUpload.files.length === 0;
+                            };
+                            convertImgBtn.onclick = async () => {
+                                convertImgBtn.textContent = 'Converting...'; convertImgBtn.disabled = true;
+                                const doc = new jsPDF();
+                                for (let i = 0; i < imgUpload.files.length; i++) {
+                                    const file = imgUpload.files[i];
+                                    const image = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
+                                    if (i > 0) doc.addPage();
+                                    const imgProps = doc.getImageProperties(image);
+                                    const pdfWidth = doc.internal.pageSize.getWidth();
+                                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                                    doc.addImage(image, 'JPEG', 10, 10, pdfWidth - 20, pdfHeight - 20);
+                                }
+                                doc.save('utilitykit-images.pdf');
+                                convertImgBtn.textContent = 'Convert to PDF'; convertImgBtn.disabled = false;
+                            };
+                            break;
+
+                        case 'merge-pdf':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select PDFs to Merge (2+ files)...</label><input type="file" id="pdf-upload" multiple accept=".pdf" style="display:none;"><div class="status-message"></div><button id="action-btn" class="tool-btn" disabled>Merge PDFs</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, `${e.target.files.length} file(s) selected.`);
+                                container.querySelector('#action-btn').disabled = e.target.files.length < 2;
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn');
+                                btn.textContent = 'Merging...'; btn.disabled = true;
+                                const mergedPdf = await PDFDocument.create();
+                                for(const file of container.querySelector('#pdf-upload').files) {
+                                    const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                    const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+                                    copiedPages.forEach(page => mergedPdf.addPage(page));
+                                }
+                                downloadFile(await mergedPdf.save(), 'utilitykit-merged.pdf', 'application/pdf');
+                                btn.textContent = 'Merge PDFs'; btn.disabled = false;
+                            };
+                            break;
+                            
+                        case 'split-pdf':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Split...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><input type="text" id="page-ranges" class="tool-input" placeholder="e.g., 1-3, 5, 8-10"><button id="action-btn" class="tool-btn" disabled>Split PDF</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Splitting..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const ranges = container.querySelector('#page-ranges').value;
+                                if (!ranges) { showMessage(container, 'Please enter page ranges.', 'error'); btn.textContent="Split PDF"; btn.disabled=false; return; }
+                                
+                                const srcDoc = await PDFDocument.load(await file.arrayBuffer());
+                                const newDoc = await PDFDocument.create();
+                                
+                                const pageIndices = new Set();
+                                ranges.split(',').forEach(range => {
+                                    if (range.includes('-')) {
+                                        const [start, end] = range.split('-').map(Number);
+                                        for (let i = start; i <= end; i++) pageIndices.add(i - 1);
+                                    } else {
+                                        pageIndices.add(Number(range) - 1);
+                                    }
+                                });
+
+                                const copiedPages = await newDoc.copyPages(srcDoc, Array.from(pageIndices));
+                                copiedPages.forEach(page => newDoc.addPage(page));
+
+                                downloadFile(await newDoc.save(), `utilitykit-split.pdf`, 'application/pdf');
+                                btn.textContent="Split PDF"; btn.disabled=false;
+                            };
+                            break;
+
+                        case 'rotate-pdf':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Rotate...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><select id="rotate-angle" class="tool-select"><option value="90">90° Clockwise</option><option value="180">180°</option><option value="270">270° Clockwise (-90°)</option></select><button id="action-btn" class="tool-btn" disabled>Rotate PDF</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Rotating..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const angle = parseInt(container.querySelector('#rotate-angle').value);
+                                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                pdfDoc.getPages().forEach(page => page.setRotation(degrees(page.getRotation().angle + angle)));
+                                downloadFile(await pdfDoc.save(), 'utilitykit-rotated.pdf', 'application/pdf');
+                                btn.textContent = 'Rotate PDF'; btn.disabled=false;
+                            };
+                            break;
+
+                        case 'protect-pdf':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Protect...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><input type="password" id="pdf-password" class="tool-input" placeholder="Enter Password"><button id="action-btn" class="tool-btn" disabled>Protect PDF</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                             container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Protecting..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const password = container.querySelector('#pdf-password').value;
+                                if(!password) { showMessage(container, 'Please enter a password.', 'error'); btn.textContent="Protect PDF"; btn.disabled=false; return;}
+                                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                const pdfBytes = await pdfDoc.save({ userPassword: password, ownerPassword: password });
+                                downloadFile(pdfBytes, 'utilitykit-protected.pdf', 'application/pdf');
+                                btn.textContent="Protect PDF"; btn.disabled=false;
+                            };
+                            break;
+
+                        case 'unlock-pdf':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Unlock...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><input type="password" id="pdf-password" class="tool-input" placeholder="Enter Password (if known)"><button id="action-btn" class="tool-btn" disabled>Unlock PDF</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent = "Unlocking..."; btn.disabled = true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const password = container.querySelector('#pdf-password').value;
+                                try {
+                                    const options = password ? { password } : {};
+                                    const existingPdfBytes = await file.arrayBuffer();
+                                    const pdfDoc = await PDFDocument.load(existingPdfBytes, options);
+                                    const pdfBytes = await pdfDoc.save();
+                                    downloadFile(pdfBytes, 'utilitykit-unlocked.pdf', 'application/pdf');
+                                } catch (err) {
+                                    showMessage(container, 'Unlocking failed. The password might be incorrect or the file is corrupted.', 'error');
+                                }
+                                btn.textContent = "Unlock PDF"; btn.disabled = false;
+                            };
+                            break;
+
+                        case 'add-page-numbers':
+                             container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><button id="action-btn" class="tool-btn" disabled>Add Page Numbers</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Processing..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+                                const pages = pdfDoc.getPages();
+                                for (let i = 0; i < pages.length; i++) {
+                                    const page = pages[i];
+                                    const { width, height } = page.getSize();
+                                    page.drawText(`${i + 1} / ${pages.length}`, {
+                                        x: width / 2 - 20,
+                                        y: 20,
+                                        size: 12,
+                                        font: helveticaFont,
+                                        color: rgb(0, 0, 0),
+                                    });
+                                }
+                                downloadFile(await pdfDoc.save(), 'utilitykit-numbered.pdf', 'application/pdf');
+                                btn.textContent = 'Add Page Numbers'; btn.disabled = false;
+                            };
+                            break;
+
+                        case 'add-watermark':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><input type="text" id="watermark-text" class="tool-input" value="CONFIDENTIAL"><button id="action-btn" class="tool-btn" disabled>Add Watermark</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Adding..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const text = container.querySelector('#watermark-text').value;
+                                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                const helveticaFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+                                const pages = pdfDoc.getPages();
+                                for (const page of pages) {
+                                    const { width, height } = page.getSize();
+                                    page.drawText(text, {
+                                        x: width / 2 - 150,
+                                        y: height / 2,
+                                        size: 50,
+                                        font: helveticaFont,
+                                        color: rgb(0.75, 0.75, 0.75),
+                                        opacity: 0.5,
+                                        rotate: degrees(45),
+                                    });
+                                }
+                                downloadFile(await pdfDoc.save(), 'utilitykit-watermarked.pdf', 'application/pdf');
+                                btn.textContent = 'Add Watermark'; btn.disabled = false;
+                            };
+                            break;
+                            
+                        case 'extract-pages':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Extract Pages...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><input type="text" id="page-numbers" class="tool-input" placeholder="e.g., 1, 3, 5-8"><button id="action-btn" class="tool-btn" disabled>Extract Pages</button>`;
+                            container.querySelector('#pdf-upload').onchange = e => {
+                                showMessage(container, e.target.files[0]?.name || 'No file selected.');
+                                container.querySelector('#action-btn').disabled = !e.target.files[0];
+                            };
+                            container.querySelector('#action-btn').onclick = async () => {
+                                const btn = container.querySelector('#action-btn'); btn.textContent="Extracting..."; btn.disabled=true;
+                                const file = container.querySelector('#pdf-upload').files[0];
+                                const pageNumbersText = container.querySelector('#page-numbers').value;
+
+                                const pageIndices = new Set();
+                                pageNumbersText.split(',').forEach(part => {
+                                    if (part.includes('-')) {
+                                        const [start, end] = part.split('-').map(n => parseInt(n.trim()));
+                                        for (let i = start; i <= end; i++) pageIndices.add(i - 1);
+                                    } else {
+                                        pageIndices.add(parseInt(part.trim()) - 1);
+                                    }
+                                });
+
+                                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+                                const newDoc = await PDFDocument.create();
+                                const copiedPages = await newDoc.copyPages(pdfDoc, Array.from(pageIndices));
+                                copiedPages.forEach(page => newDoc.addPage(page));
+                                
+                                downloadFile(await newDoc.save(), 'utilitykit-extracted.pdf', 'application/pdf');
+                                btn.textContent = 'Extract Pages'; btn.disabled = false;
+                            };
+                            break;
+
+                        case 'compress-pdf':
+                            container.innerHTML = `<div class="tool-output">Client-side PDF compression is a highly complex process and often results in larger files or quality loss. For reliable compression, server-side tools like Ghostscript are recommended. This feature is currently in research.</div>`;
+                            break;
+
+                        case 'pdf-to-jpg':
+                            container.innerHTML = `<label for="pdf-upload" class="file-input-label">Select a PDF to Convert...</label><input type="file" id="pdf-upload" accept=".pdf" style="display:none;"><div class="status-message"></div><div id="jpg-output" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-height: 300px; overflow-y: auto;"></div>`;
+                            container.querySelector('#pdf-upload').onchange = async e => {
+                                const file = e.target.files[0]; if (!file) return;
+                                const status = container.querySelector('.status-message'), output = container.querySelector('#jpg-output');
+                                status.textContent = 'Loading PDF...'; output.innerHTML = '';
+                                const fileReader = new FileReader();
+                                fileReader.onload = async function() {
+                                    const typedarray = new Uint8Array(this.result);
+                                    const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+                                    status.textContent = `Converting ${pdf.numPages} pages...`;
+                                    for(let i = 1; i <= pdf.numPages; i++) {
+                                        const page = await pdf.getPage(i);
+                                        const viewport = page.getViewport({scale: 1.5});
+                                        const canvas = document.createElement('canvas'), context = canvas.getContext('2d');
+                                        canvas.height = viewport.height; canvas.width = viewport.width;
+                                        await page.render({canvasContext: context, viewport: viewport}).promise;
+                                        const img = document.createElement('img');
+                                        img.src = canvas.toDataURL('image/jpeg');
+                                        img.style.width = '150px'; img.style.margin = '5px'; img.style.border = '1px solid var(--border-color)';
+                                        const link = document.createElement('a');
+                                        link.href = img.src;
+                                        link.download = `${file.name.replace('.pdf','')}-page-${i}.jpg`;
+                                        link.appendChild(img);
+                                        output.appendChild(link);
+                                    }
+                                    status.textContent = 'Conversion complete! Click on images to download.';
+                                };
+                                fileReader.readAsArrayBuffer(file);
+                            };
+                            break;
+
+                        case 'bmi-calculator':
+                            container.innerHTML = `<input type="number" id="height" class="tool-input" placeholder="Height (cm)"><input type="number" id="weight" class="tool-input" placeholder="Weight (kg)"><button id="calc-bmi" class="tool-btn">Calculate BMI</button><div id="bmi-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-bmi').onclick = () => {
+                                const h = parseFloat(container.querySelector('#height').value);
+                                const w = parseFloat(container.querySelector('#weight').value);
+                                const resultEl = container.querySelector('#bmi-result');
+                                if (h > 0 && w > 0) {
+                                    const bmi = (w / ((h/100) * (h/100))).toFixed(2);
+                                    let category = '';
+                                    if (bmi < 18.5) category = 'Underweight';
+                                    else if (bmi < 24.9) category = 'Normal weight';
+                                    else if (bmi < 29.9) category = 'Overweight';
+                                    else category = 'Obesity';
+                                    resultEl.innerHTML = `Your BMI is: <strong>${bmi}</strong><br>Category: <strong>${category}</strong>`;
+                                } else {
+                                    resultEl.textContent = 'Please enter valid height and weight.';
+                                }
+                            };
+                            break;
+                            
+                        case 'age-calculator':
+                            container.innerHTML = `<input type="date" id="birth-date" class="tool-input"><button id="calc-age" class="tool-btn">Calculate Age</button><div id="age-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-age').onclick = () => {
+                                const birthDate = new Date(container.querySelector('#birth-date').value);
+                                if (isNaN(birthDate.getTime())) { container.querySelector('#age-result').textContent = 'Please select a valid date.'; return; }
+                                const today = new Date();
+                                let age = today.getFullYear() - birthDate.getFullYear();
+                                const m = today.getMonth() - birthDate.getMonth();
+                                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+                                container.querySelector('#age-result').textContent = `You are ${age} years old.`;
+                            };
+                            break;
+
+                        case 'percentage-calculator':
+                            container.innerHTML = `<div class="flex-group"><input type="number" id="pct-val1" class="tool-input" placeholder="What is"><input type="number" id="pct-val2" class="tool-input" placeholder="% of"></div><button id="calc-pct" class="tool-btn">Calculate</button><div id="pct-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-pct').onclick = () => {
+                                const val1 = parseFloat(container.querySelector('#pct-val1').value);
+                                const val2 = parseFloat(container.querySelector('#pct-val2').value);
+                                if (!isNaN(val1) && !isNaN(val2)) {
+                                    container.querySelector('#pct-result').textContent = `Result: ${(val1 / 100) * val2}`;
+                                } else {
+                                    container.querySelector('#pct-result').textContent = 'Please enter valid numbers.';
+                                }
+                            };
+                            break;
+
+                        case 'discount-calculator':
+                            container.innerHTML = `<input type="number" id="disc-price" class="tool-input" placeholder="Original Price"><input type="number" id="disc-pct" class="tool-input" placeholder="Discount (%)"><button id="calc-disc" class="tool-btn">Calculate</button><div id="disc-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-disc').onclick = () => {
+                                const price = parseFloat(container.querySelector('#disc-price').value);
+                                const pct = parseFloat(container.querySelector('#disc-pct').value);
+                                const resultEl = container.querySelector('#disc-result');
+                                if(!isNaN(price) && !isNaN(pct)) {
+                                    const finalPrice = price - (price * pct / 100);
+                                    const saved = price - finalPrice;
+                                    resultEl.innerHTML = `Final Price: <strong>${finalPrice.toFixed(2)}</strong><br>You Save: <strong>${saved.toFixed(2)}</strong>`;
+                                } else {
+                                    resultEl.textContent = 'Please enter valid numbers.';
+                                }
+                            };
+                            break;
+
+                        case 'date-calculator':
+                            container.innerHTML = `<label>Start Date:</label><input type="date" id="start-date" class="tool-input"><label>End Date:</label><input type="date" id="end-date" class="tool-input"><button id="calc-date" class="tool-btn">Calculate Difference</button><div id="date-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-date').onclick = () => {
+                                const startDate = new Date(container.querySelector('#start-date').value);
+                                const endDate = new Date(container.querySelector('#end-date').value);
+                                if(isNaN(startDate.getTime()) || isNaN(endDate.getTime())) { container.querySelector('#date-result').textContent = 'Please select valid dates.'; return; }
+                                const diffTime = Math.abs(endDate - startDate);
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                                container.querySelector('#date-result').textContent = `Difference: ${diffDays} days.`;
+                            };
+                            break;
+
+                        case 'loan-calculator':
+                            container.innerHTML = `<input type="number" id="loan-amount" class="tool-input" placeholder="Loan Amount">
+                                               <input type="number" id="loan-interest" class="tool-input" placeholder="Annual Interest Rate (%)">
+                                               <input type="number" id="loan-tenure" class="tool-input" placeholder="Loan Tenure (Years)">
+                                               <button id="calc-loan" class="tool-btn">Calculate EMI</button>
+                                               <div id="loan-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-loan').onclick = () => {
+                                const p = parseFloat(container.querySelector('#loan-amount').value);
+                                const r_annual = parseFloat(container.querySelector('#loan-interest').value);
+                                const n_years = parseFloat(container.querySelector('#loan-tenure').value);
+                                const resultEl = container.querySelector('#loan-result');
+                                
+                                if (p > 0 && r_annual > 0 && n_years > 0) {
+                                    const r = (r_annual / 12) / 100;
+                                    const n = n_years * 12;
+                                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                    const totalPayable = emi * n;
+                                    const totalInterest = totalPayable - p;
+                                    resultEl.innerHTML = `Monthly EMI: <strong>${emi.toFixed(2)}</strong><br>Total Interest: <strong>${totalInterest.toFixed(2)}</strong><br>Total Payment: <strong>${totalPayable.toFixed(2)}</strong>`;
+                                } else {
+                                    resultEl.textContent = 'Please enter valid positive numbers.';
+                                }
+                            };
+                            break;
+
+                        case 'tip-calculator':
+                            container.innerHTML = `<input type="number" id="tip-bill" class="tool-input" placeholder="Total Bill">
+                                               <input type="number" id="tip-pct" class="tool-input" placeholder="Tip (%)" value="15">
+                                               <input type="number" id="tip-people" class="tool-input" placeholder="Number of People" value="1">
+                                               <button id="calc-tip" class="tool-btn">Calculate Tip</button>
+                                               <div id="tip-result" class="tool-output"></div>`;
+                            container.querySelector('#calc-tip').onclick = () => {
+                                const bill = parseFloat(container.querySelector('#tip-bill').value);
+                                const pct = parseFloat(container.querySelector('#tip-pct').value);
+                                const people = parseInt(container.querySelector('#tip-people').value);
+                                const resultEl = container.querySelector('#tip-result');
+
+                                if (bill > 0 && pct >= 0 && people > 0) {
+                                    const tipAmount = bill * (pct / 100);
+                                    const totalAmount = bill + tipAmount;
+                                    const perPerson = totalAmount / people;
+                                    resultEl.innerHTML = `Tip Amount: <strong>${tipAmount.toFixed(2)}</strong><br>Total Bill: <strong>${totalAmount.toFixed(2)}</strong><br>Per Person: <strong>${perPerson.toFixed(2)}</strong>`;
+                                } else {
+                                    resultEl.textContent = 'Please enter valid values.';
+                                }
+                            };
+                            break;
+                            
+                        case 'currency-converter':
+                            container.innerHTML = `<div class="flex-group"><input type="number" id="amount" class="tool-input" value="1"><select id="from" class="tool-select"></select></div><div class="flex-group"><input type="text" id="result" class="tool-output" readonly><select id="to" class="tool-select"></select></div><div class="status-message"></div>`;
+                            const fromSelect = container.querySelector('#from');
+                            const toSelect = container.querySelector('#to');
+                            
+                            showMessage(container, 'Loading currencies...');
+                            fetch('https://api.frankfurter.app/currencies')
+                                .then(res => res.json())
+                                .then(currencies => {
+                                    for(const code in currencies) {
+                                        [fromSelect, toSelect].forEach(select => {
+                                            const option = document.createElement('option');
+                                            option.value = code;
+                                            option.textContent = `${code} - ${currencies[code]}`;
+                                            select.appendChild(option);
+                                        });
+                                    }
+                                    fromSelect.value = 'USD';
+                                    toSelect.value = 'BDT';
+                                    convertCurrency();
+                                });
+
+                            const convertCurrency = () => {
+                                const amount = container.querySelector('#amount').value;
+                                if (!amount) return;
+                                const from = fromSelect.value;
+                                const to = toSelect.value;
+                                if(from === to) { container.querySelector('#result').value = amount; return; }
+                                showMessage(container, `Converting ${from} to ${to}...`);
+                                fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    container.querySelector('#result').value = data.rates[to];
+                                    showMessage(container, `Rate: 1 ${from} = ${(data.rates[to]/amount).toFixed(4)} ${to}`);
+                                });
+                            };
+                            container.querySelector('#amount').oninput = convertCurrency;
+                            fromSelect.onchange = convertCurrency;
+                            toSelect.onchange = convertCurrency;
+                            break;
+
+                        case 'color-converter':
+                            container.innerHTML = `<input type="text" id="color-input" class="tool-input" placeholder="Enter HEX, RGB, or HSL value">
+                                               <div id="color-preview" style="width: 100%; height: 50px; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border-color);"></div>
+                                               <div id="color-result" class="tool-output"></div>`;
+                            const colorInput = container.querySelector('#color-input');
+                            const preview = container.querySelector('#color-preview');
+                            const resultEl = container.querySelector('#color-result');
+
+                            const updateColor = () => {
+                                const input = colorInput.value.trim();
+                                let color = input;
+                                try {
+                                    preview.style.backgroundColor = color;
+                                    resultEl.textContent = `Input: ${input}`;
+                                } catch(e) {
+                                    resultEl.textContent = 'Invalid color format.';
+                                }
+                            };
+                            colorInput.oninput = updateColor;
+                            break;
+                            
+                        case 'length-converter':
+                        case 'weight-converter':
+                            const units = {
+                                'length-converter': { m: 1, km: 1000, cm: 0.01, mm: 0.001, mi: 1609.34, yd: 0.9144, ft: 0.3048, in: 0.0254 },
+                                'weight-converter': { kg: 1, g: 0.001, mg: 1e-6, t: 1000, lb: 0.453592, oz: 0.0283495 }
+                            };
+                            const unitData = units[toolId];
+                            let optionsHtml = '';
+                            for (const unit in unitData) { optionsHtml += `<option value="${unit}">${unit}</option>`; }
+                            container.innerHTML = `<div class="flex-group"><input type="number" id="conv-input" class="tool-input" value="1"><select id="conv-from" class="tool-select">${optionsHtml}</select></div><div class="flex-group"><input type="text" id="conv-result" class="tool-output" readonly><select id="conv-to" class="tool-select">${optionsHtml}</select></div>`;
+                            
+                            const convInput = container.querySelector('#conv-input');
+                            const fromUnit = container.querySelector('#conv-from');
+                            const toUnit = container.querySelector('#conv-to');
+                            const convResult = container.querySelector('#conv-result');
+
+                            const convert = () => {
+                                const val = parseFloat(convInput.value);
+                                const from = fromUnit.value;
+                                const to = toUnit.value;
+                                if(!isNaN(val)) {
+                                    const inBase = val * unitData[from];
+                                    const finalVal = inBase / unitData[to];
+                                    convResult.value = finalVal;
+                                }
+                            };
+                            convInput.oninput = convert;
+                            fromUnit.onchange = convert;
+                            toUnit.onchange = convert;
+                            convert();
+                            break;
+
+                        case 'unix-timestamp-converter':
+                            container.innerHTML = `<h4>Timestamp to Date</h4>
+                                               <input type="number" id="unix-ts" class="tool-input" placeholder="Enter Unix Timestamp (seconds)">
+                                               <button id="to-date-btn" class="tool-btn">Convert to Date</button>
+                                               <div id="date-output" class="tool-output"></div>
+                                               <h4 style="margin-top: 1.5rem;">Date to Timestamp</h4>
+                                               <input type="datetime-local" id="human-date" class="tool-input">
+                                               <button id="to-ts-btn" class="tool-btn">Convert to Timestamp</button>
+                                               <div id="ts-output" class="tool-output"></div>`;
+                            
+                            container.querySelector('#to-date-btn').onclick = () => {
+                                const ts = parseInt(container.querySelector('#unix-ts').value);
+                                if (!isNaN(ts)) {
+                                    container.querySelector('#date-output').textContent = new Date(ts * 1000).toUTCString();
+                                }
+                            };
+                             container.querySelector('#to-ts-btn').onclick = () => {
+                                const dateVal = container.querySelector('#human-date').value;
+                                const date = new Date(dateVal);
+                                if (!isNaN(date.getTime())) {
+                                    container.querySelector('#ts-output').textContent = Math.floor(date.getTime() / 1000);
+                                }
+                            };
+                            break;
+
+                        case 'roman-numeral-converter':
+                             container.innerHTML = `<input type="text" id="roman-input" class="tool-input" placeholder="Enter Number or Roman Numeral"><div id="roman-result" class="tool-output"></div>`;
+                            const romanInputEl = container.querySelector('#roman-input');
+                            romanInputEl.oninput = () => {
+                                const input = romanInputEl.value.trim();
+                                const resultEl = container.querySelector('#roman-result');
+                                if (!isNaN(input) && input !== '') { 
+                                    resultEl.textContent = toRoman(parseInt(input));
+                                } else {
+                                    resultEl.textContent = fromRoman(input.toUpperCase());
+                                }
+                            };
+                            function toRoman(num) {
+                                if (num < 1 || num > 3999) return 'Input must be between 1 and 3999';
+                                const val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+                                const rom = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+                                let result = '';
+                                for (let i = 0; i < val.length; i++) {
+                                    while (num >= val[i]) {
+                                        result += rom[i];
+                                        num -= val[i];
+                                    }
+                                }
+                                return result;
+                            }
+                            function fromRoman(str) {
+                                const map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+                                let result = 0;
+                                for (let i = 0; i < str.length; i++) {
+                                    const current = map[str[i]], next = map[str[i + 1]];
+                                    if(current === undefined) return "Invalid Roman Numeral";
+                                    if (next && current < next) {
+                                        result -= current;
+                                    } else {
+                                        result += current;
+                                    }
+                                }
+                                return isNaN(result) ? "Invalid Roman Numeral" : result;
+                            }
+                            break;
+
+                        case 'password-generator':
+                            container.innerHTML = `
+                                <label>Length: <span id="pass-len-val">16</span></label>
+                                <input type="range" id="pass-len" class="tool-input" min="8" max="64" value="16">
+                                <div class="tool-options">
+                                    <label><input type="checkbox" id="upper" checked> ABC</label>
+                                    <label><input type="checkbox" id="lower" checked> abc</label>
+                                    <label><input type="checkbox" id="number" checked> 123</label>
+                                    <label><input type="checkbox" id="symbol" checked> #$&</label>
+                                </div>
+                                <div id="pass-strength" class="password-strength"></div>
+                                <div class="flex-group">
+                                    <input type="text" id="pass-result" class="tool-output" readonly>
+                                    <button id="copy-btn" class="tool-btn" style="flex: 0.2;">Copy</button>
+                                </div>
+                                <button id="gen-pass" class="tool-btn">Generate Password</button>`;
+
+                            const passLen = container.querySelector('#pass-len');
+                            const passLenVal = container.querySelector('#pass-len-val');
+                            const passResultEl = container.querySelector('#pass-result');
+                            const strengthEl = container.querySelector('#pass-strength');
+
+                            const checkStrength = (pass) => {
+                                let score = 0;
+                                if (pass.length > 8) score++;
+                                if (pass.length > 12) score++;
+                                if (/[A-Z]/.test(pass)) score++;
+                                if (/[a-z]/.test(pass)) score++;
+                                if (/[0-9]/.test(pass)) score++;
+                                if (/[^A-Za-z0-9]/.test(pass)) score++;
+
+                                switch (score) {
+                                    case 6: strengthEl.textContent = 'Very Strong'; strengthEl.style.backgroundColor = '#2ecc71'; break;
+                                    case 5: strengthEl.textContent = 'Strong'; strengthEl.style.backgroundColor = '#27ae60'; break;
+                                    case 4: strengthEl.textContent = 'Medium'; strengthEl.style.backgroundColor = '#f1c40f'; break;
+                                    case 3: strengthEl.textContent = 'Weak'; strengthEl.style.backgroundColor = '#e67e22'; break;
+                                    default: strengthEl.textContent = 'Very Weak'; strengthEl.style.backgroundColor = '#e74c3c'; break;
+                                }
+                            };
+                            
+                            const genPass = () => {
+                                const len = passLen.value;
+                                let chars = '';
+                                if(container.querySelector('#upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                                if(container.querySelector('#lower').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+                                if(container.querySelector('#number').checked) chars += '0123456789';
+                                if(container.querySelector('#symbol').checked) chars += '!@#$%^&*()-_=+[]{}|;:,.<>?';
+                                if(chars === '') { passResultEl.value = "Select char type!"; strengthEl.textContent = ''; strengthEl.style.backgroundColor = 'transparent'; return; }
+                                let pass = ''; 
+                                for (let i = 0; i < len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+                                passResultEl.value = pass;
+                                checkStrength(pass);
+                            };
+
+                            passLen.oninput = () => { passLenVal.textContent = passLen.value; genPass(); };
+                            container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = genPass);
+                            container.querySelector('#gen-pass').onclick = genPass;
+                            container.querySelector('#copy-btn').onclick = () => {
+                                navigator.clipboard.writeText(passResultEl.value);
+                                const copyBtn = container.querySelector('#copy-btn');
+                                copyBtn.textContent = 'Copied!';
+                                setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+                            };
+                            genPass();
+                            break;
+
+                        case 'qr-code-generator':
+                            container.innerHTML = `<input type="text" id="qr-input" class="tool-input" placeholder="Enter text or URL"><button id="gen-qr" class="tool-btn">Generate QR Code</button><div id="qr-result" style="text-align: center; margin-top: 1rem; background: white; padding: 10px; display: inline-block;"></div>`;
+                            container.querySelector('#gen-qr').onclick = () => {
+                                const text = container.querySelector('#qr-input').value;
+                                if (!text) return;
+                                const qr = qrcode(0, 'L');
+                                qr.addData(text);
+                                qr.make();
+                                container.querySelector('#qr-result').innerHTML = qr.createImgTag(6, 10);
+                            };
+                            break;
+
+                        case 'quote-generator':
+                            container.innerHTML = `<div id="quote-result" class="tool-output" style="min-height: 150px; font-style: italic;"></div><button id="gen-quote" class="tool-btn">New Quote</button>`;
+                            const quoteEl = container.querySelector('#quote-result');
+                            const genQuoteBtn = container.querySelector('#gen-quote');
+                            const getQuote = () => {
+                                genQuoteBtn.textContent = "Loading..."; genQuoteBtn.disabled = true;
+                                fetch('https://api.quotable.io/random')
+                                .then(res => res.json())
+                                .then(data => {
+                                    quoteEl.innerHTML = `"${data.content}"<br><br><strong>- ${data.author}</strong>`;
+                                    genQuoteBtn.textContent = "New Quote"; genQuoteBtn.disabled = false;
+                                });
+                            };
+                            genQuoteBtn.onclick = getQuote;
+                            getQuote();
+                            break;
+                            
+                        case 'uuid-generator':
+                            container.innerHTML = `<div id="uuid-result" class="tool-output"></div><button id="gen-uuid" class="tool-btn">Generate New UUID</button>`;
+                            const genUUID = () => { container.querySelector('#uuid-result').textContent = crypto.randomUUID(); };
+                            container.querySelector('#gen-uuid').onclick = genUUID;
+                            genUUID();
+                            break;
+
+                        case 'random-number-generator':
+                            container.innerHTML = `<div class="flex-group"><input type="number" id="rnd-min" class="tool-input" value="1" placeholder="Min"><input type="number" id="rnd-max" class="tool-input" value="100" placeholder="Max"></div><button id="gen-rnd" class="tool-btn">Generate</button><div id="rnd-result" class="tool-output" style="text-align: center; font-size: 2rem;"></div>`;
+                            const genRnd = () => {
+                                const min = parseInt(container.querySelector('#rnd-min').value);
+                                const max = parseInt(container.querySelector('#rnd-max').value);
+                                if (!isNaN(min) && !isNaN(max) && min <= max) {
+                                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
+                                    container.querySelector('#rnd-result').textContent = num;
+                                }
+                            };
+                            container.querySelector('#gen-rnd').onclick = genRnd;
+                            genRnd();
+                            break;
+                            
+                        case 'lorem-ipsum-generator':
+                            container.innerHTML = `<input type="number" id="lorem-p-count" class="tool-input" value="3" placeholder="Number of paragraphs"><button id="gen-lorem" class="tool-btn">Generate</button><div id="lorem-result" class="tool-output" style="white-space: normal;"></div>`;
+                            const genLorem = () => {
+                                const count = parseInt(container.querySelector('#lorem-p-count').value);
+                                if(count > 0) {
+                                    const LOREM_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+                                    let result = '';
+                                    for(let i=0; i < count; i++) {
+                                        result += `<p>${LOREM_TEXT}</p>`;
+                                    }
+                                    container.querySelector('#lorem-result').innerHTML = result;
+                                }
+                            };
+                            container.querySelector('#gen-lorem').onclick = genLorem;
+                            genLorem();
+                            break;
+                            
+                        case 'dummy-image-generator':
+                            container.innerHTML = `<div class="flex-group"><input type="number" id="img-w" class="tool-input" value="300" placeholder="Width"><input type="number" id="img-h" class="tool-input" value="200" placeholder="Height"></div><button id="gen-img" class="tool-btn">Generate Image</button><div id="img-result" style="text-align: center; margin-top: 1rem;"></div>`;
+                            const genDummyImg = () => {
+                                const w = container.querySelector('#img-w').value;
+                                const h = container.querySelector('#img-h').value;
+                                if (w > 0 && h > 0) {
+                                    const url = `https://placehold.co/${w}x${h}`;
+                                    container.querySelector('#img-result').innerHTML = `<p>URL: ${url}</p><img src="${url}" alt="Dummy Image ${w}x${h}">`;
+                                }
+                            };
+                            container.querySelector('#gen-img').onclick = genDummyImg;
+                            genDummyImg();
+                            break;
+
+                        case 'whats-my-ip':
+                            container.innerHTML = `<div id="ip-result" class="tool-output" style="text-align:center; font-size: 1.2rem;">Loading your IP address...</div>`;
+                            fetch('https://api.ipify.org?format=json')
+                                .then(res => res.json())
+                                .then(data => container.querySelector('#ip-result').textContent = `Your IP Address is: ${data.ip}`)
+                                .catch(() => container.querySelector('#ip-result').textContent = 'Could not fetch IP address.');
+                            break;
+                            
+                        case 'url-encoder-decoder':
+                            container.innerHTML = `<textarea id="url-input" class="tool-input" rows="5" placeholder="Enter text..."></textarea><div class="flex-group"><button id="url-encode" class="tool-btn">Encode</button><button id="url-decode" class="tool-btn">Decode</button></div>`;
+                            const urlInput = container.querySelector('#url-input');
+                            container.querySelector('#url-encode').onclick = () => { urlInput.value = encodeURIComponent(urlInput.value); };
+                            container.querySelector('#url-decode').onclick = () => { urlInput.value = decodeURIComponent(urlInput.value); };
+                            break;
+                            
+                        case 'base64-encoder-decoder':
+                            container.innerHTML = `<textarea id="b64-input" class="tool-input" rows="5" placeholder="Enter text..."></textarea><div class="flex-group"><button id="b64-encode" class="tool-btn">Encode</button><button id="b64-decode" class="tool-btn">Decode</button></div>`;
+                            const b64Input = container.querySelector('#b64-input');
+                            container.querySelector('#b64-encode').onclick = () => { b64Input.value = btoa(b64Input.value); };
+                            container.querySelector('#b64-decode').onclick = () => { try { b64Input.value = atob(b64Input.value); } catch(e) { b64Input.value = "Invalid Base64 string"; } };
+                            break;
+                            
+                        case 'hash-generator':
+                            container.innerHTML = `<textarea id="hash-input" class="tool-input" rows="4" placeholder="Enter text..."></textarea>
+                                               <select id="hash-algo" class="tool-select"><option value="MD5">MD5</option><option value="SHA1">SHA-1</option><option value="SHA256">SHA-256</option><option value="SHA512">SHA-512</option></select>
+                                               <div id="hash-result" class="tool-output"></div>`;
+                            const hashInput = container.querySelector('#hash-input');
+                            const hashAlgo = container.querySelector('#hash-algo');
+                            const genHash = () => {
+                                const text = hashInput.value;
+                                const algo = hashAlgo.value;
+                                if(text) {
+                                    const hash = CryptoJS[algo](text).toString();
+                                    container.querySelector('#hash-result').textContent = hash;
+                                }
+                            };
+                            hashInput.oninput = genHash;
+                            hashAlgo.onchange = genHash;
+                            break;
+
+                        case 'json-viewer':
+                            container.innerHTML = `<textarea id="json-input" class="tool-input" rows="8" placeholder="Paste your JSON here..."></textarea><button id="format-json" class="tool-btn">Format / Validate JSON</button><div id="json-result" class="tool-output"></div>`;
+                            container.querySelector('#format-json').onclick = () => {
+                                const input = container.querySelector('#json-input');
+                                const resultEl = container.querySelector('#json-result');
+                                try {
+                                    const parsed = JSON.parse(input.value);
+                                    const formatted = JSON.stringify(parsed, null, 4);
+                                    resultEl.textContent = formatted;
+                                    resultEl.style.color = 'var(--text-color)';
+                                } catch (e) {
+                                    resultEl.textContent = `Invalid JSON: ${e.message}`;
+                                    resultEl.style.color = '#ff6b6b';
+                                }
+                            };
+                            break;
+                            
+                        case 'css-minifier':
+                            container.innerHTML = `<textarea id="css-input" class="tool-input" rows="8" placeholder="Paste your CSS here..."></textarea><button id="minify-css" class="tool-btn">Minify CSS</button><textarea id="css-result" class="tool-output" readonly rows="5"></textarea>`;
+                            container.querySelector('#minify-css').onclick = () => {
+                                let css = container.querySelector('#css-input').value;
+                                css = css.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1'); 
+                                css = css.replace(/\s+/g, ' '); 
+                                css = css.replace(/\s*([{}:;,])\s*/g, '$1');
+                                css = css.replace(/;}/g, '}');
+                                container.querySelector('#css-result').value = css.trim();
+                            };
+                            break;
+                            
+                        case 'word-counter':
+                            container.innerHTML = `<textarea id="word-input" class="tool-input" rows="6" placeholder="Paste your text here..."></textarea><div id="word-result" class="tool-output">Words: 0 | Characters: 0 | Lines: 0</div>`;
+                            container.querySelector('#word-input').oninput = e => {
+                                const text = e.target.value;
+                                const words = text.match(/\b\w+\b/g)?.length || 0;
+                                const chars = text.length;
+                                const lines = text ? text.split(/\r\n|\r|\n/).length : 0;
+                                container.querySelector('#word-result').textContent = `Words: ${words} | Characters: ${chars} | Lines: ${lines}`;
+                            };
+                            break;
+
+                        case 'case-converter':
+                            container.innerHTML = `<textarea id="case-input" class="tool-input" rows="6" placeholder="Enter text..."></textarea>
+                                               <div class="tool-options">
+                                               <button class="tool-btn" data-case="upper">UPPERCASE</button>
+                                               <button class="tool-btn" data-case="lower">lowercase</button>
+                                               <button class="tool-btn" data-case="sentence">Sentence case</button>
+                                               <button class="tool-btn" data-case="capitalized">Capitalized Case</button>
+                                               </div>`;
+                            container.querySelectorAll('.tool-btn').forEach(btn => {
+                                btn.onclick = () => {
+                                    const input = container.querySelector('#case-input');
+                                    let text = input.value;
+                                    switch(btn.dataset.case) {
+                                        case 'upper': text = text.toUpperCase(); break;
+                                        case 'lower': text = text.toLowerCase(); break;
+                                        case 'sentence': text = text.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g, c => c.toUpperCase()); break;
+                                        case 'capitalized': text = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); break;
+                                    }
+                                    input.value = text;
+                                };
+                            });
+                            break;
+                            
+                        case 'reverse-text':
+                            container.innerHTML = `<textarea id="rev-input" class="tool-input" rows="6" placeholder="Enter text to reverse..."></textarea><div id="rev-result" class="tool-output"></div>`;
+                            container.querySelector('#rev-input').oninput = e => {
+                                container.querySelector('#rev-result').textContent = e.target.value.split('').reverse().join('');
+                            };
+                            break;
+                            
+                        case 'text-to-speech':
+                            container.innerHTML = `<textarea id="tts-input" class="tool-input" rows="6" placeholder="Enter text to speak..."></textarea><button id="tts-speak" class="tool-btn">Speak</button>`;
+                            container.querySelector('#tts-speak').onclick = () => {
+                                const text = container.querySelector('#tts-input').value;
+                                if (text) {
+                                    const utterance = new SpeechSynthesisUtterance(text);
+                                    window.speechSynthesis.speak(utterance);
+                                }
+                            };
+                            break;
+                            
+                        case 'find-replace':
+                            container.innerHTML = `<textarea id="fr-text" class="tool-input" rows="6" placeholder="Enter original text..."></textarea>
+                                               <div class="flex-group">
+                                               <input type="text" id="fr-find" class="tool-input" placeholder="Find">
+                                               <input type="text" id="fr-replace" class="tool-input" placeholder="Replace With">
+                                               </div>
+                                               <button id="fr-btn" class="tool-btn">Replace All</button>`;
+                            container.querySelector('#fr-btn').onclick = () => {
+                                const textEl = container.querySelector('#fr-text');
+                                const find = container.querySelector('#fr-find').value;
+                                const replace = container.querySelector('#fr-replace').value;
+                                if(find) {
+                                    textEl.value = textEl.value.replaceAll(find, replace);
+                                }
+                            };
+                            break;
+                            
+                        case 'line-break-remover':
+                            container.innerHTML = `<textarea id="lb-input" class="tool-input" rows="6" placeholder="Paste text with line breaks..."></textarea><button id="lb-btn" class="tool-btn">Remove Line Breaks</button>`;
+                            container.querySelector('#lb-btn').onclick = () => {
+                                const input = container.querySelector('#lb-input');
+                                input.value = input.value.replace(/(\r\n|\n|\r)/gm, " ");
+                            };
+                            break;
+                            
+                        case 'text-to-slug':
+                            container.innerHTML = `<input type="text" id="slug-input" class="tool-input" placeholder="Enter text to create slug"><div id="slug-result" class="tool-output"></div>`;
+                            container.querySelector('#slug-input').oninput = e => {
+                                const text = e.target.value;
+                                const slug = text.toLowerCase()
+                                    .trim()
+                                    .replace(/[^\w\s-]/g, '')
+                                    .replace(/[\s_-]+/g, '-')
+                                    .replace(/^-+|-+$/g, '');
+                                container.querySelector('#slug-result').textContent = slug;
+                            };
+                            break;
+                            
+                        case 'morse-code-converter':
+                            const morseCodeMap = { 'A':'.-', 'B':'-...', 'C':'-.-.', 'D':'-..', 'E':'.', 'F':'..-.', 'G':'--.', 'H':'....', 'I':'..', 'J':'.---', 'K':'-.-', 'L':'.-..', 'M':'--', 'N':'-.', 'O':'---', 'P':'.--.', 'Q':'--.-', 'R':'.-.', 'S':'...', 'T':'-', 'U':'..-', 'V':'...-', 'W':'.--', 'X':'-..-', 'Y':'-.--', 'Z':'--..', '1':'.----', '2':'..---', '3':'...--', '4':'....-', '5':'.....', '6':'-....', '7':'--...', '8':'---..', '9':'----.', '0':'-----', ' ':'/'};
+                            const textMap = Object.fromEntries(Object.entries(morseCodeMap).map(([k, v]) => [v, k]));
+                            container.innerHTML = `<textarea id="morse-input" class="tool-input" rows="5" placeholder="Enter text or Morse code..."></textarea><div id="morse-result" class="tool-output"></div>`;
+                            container.querySelector('#morse-input').oninput = e => {
+                                const input = e.target.value.toUpperCase();
+                                if (input.match(/^[.\-/\s]+$/)) {
+                                    container.querySelector('#morse-result').textContent = input.split(' ').map(c => textMap[c] || '').join('');
+                                } else { 
+                                    container.querySelector('#morse-result').textContent = input.split('').map(c => morseCodeMap[c] || '').join(' ');
+                                }
+                            };
+                            break;
+                            
+                        default:
+                            container.innerHTML = `<p>Tool not found or not yet implemented.</p>`;
+                            break;
+                    }
+                } catch(err) {
+                    container.innerHTML = `<div class="tool-output" style="color: #ff6b6b;">An error occurred while loading this tool. Please try again.<br><small>${err.message}</small></div>`;
+                    console.error("Tool Error:", toolId, err);
+                }
+            }
+            
+            // --- INITIALIZATION ---
+            function initApp() {
+                const initialPage = window.location.hash.substring(1) || 'home';
+                loadPage(initialPage);
+                
+                window.addEventListener('popstate', () => {
+                    const pageId = window.location.hash.substring(1) || 'home';
+                    loadPage(pageId);
+                });
+
+                const canvas = document.getElementById('background-canvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                    let particlesArray, hue = 200;
+                    class Particle {
+                        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1; this.speedX = (Math.random() * 1 - 0.5) / 2; this.speedY = (Math.random() * 1 - 0.5) / 2; }
+                        update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX *= -1; if (this.y > canvas.height || this.y < 0) this.speedY *= -1; }
+                        draw() { ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.8)`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+                    }
+                    function initParticles() { particlesArray = []; let num = Math.floor((canvas.width * canvas.height) / 12000); for (let i = 0; i < num; i++) particlesArray.push(new Particle()); }
+                    function connect() {
+                        for (let a = 0; a < particlesArray.length; a++) {
+                            for (let b = a; b < particlesArray.length; b++) {
+                                let dist = Math.sqrt(Math.pow(particlesArray[a].x - particlesArray[b].x, 2) + Math.pow(particlesArray[a].y - particlesArray[b].y, 2));
+                                if (dist < 120) { let opacity = 1 - (dist / 120); ctx.strokeStyle = `hsla(${hue}, 100%, 70%, ${opacity})`; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(particlesArray[a].x, particlesArray[a].y); ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke(); }
+                            }
+                        }
+                    }
+                    function animate() {
+                        if(!document.body.classList.contains('light-mode')) {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                            if (particlesArray) {
+                                for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); } 
+                                connect(); 
+                            }
+                            hue = (hue + 0.1); 
+                            if(hue > 260) hue = 180;
+                        }
+                        requestAnimationFrame(animate); 
+                    }
+                    
+                    initParticles(); 
+                    animate();
+                    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
+                }
+            }
+            
+            initApp();
+        });
+    </script>
+</body>
+</html>
